@@ -6,7 +6,7 @@
 <script>
 export default {
   components: {
-    ThreejsComponent: process.browser ? () => import('~/components/Three.vue') : null
+    ThreejsComponent: process.browser ? () => import('~/components/ThreeJS.vue') : null
   }
 }
 </script>

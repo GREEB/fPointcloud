@@ -8,7 +8,6 @@
     <img src="~static/logo.svg">
     <v-toolbar-title v-text="title" />
     <v-spacer />
-
     <v-chip
       id="pointsCount"
       outlined

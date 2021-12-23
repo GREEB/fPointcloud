@@ -111,6 +111,7 @@ export const postRefreshToken = async (req, res, next) => {
         message: 'Refresh token was expired. Please login again!'
       })
     }
+    console.log(refreshToken)
     const user = await refreshToken.getUser()
     const newAccessToken = jwt.sign({ id: user.id }, config.secret, {
       expiresIn: config.jwtExpiration
