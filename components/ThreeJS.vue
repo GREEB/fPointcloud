@@ -174,7 +174,7 @@ export default {
     const gui = new GUI({ autoPlace: false })
     const optionFolder = gui.addFolder('Options')
     optionFolder.add(this.guiLet, 'pointsCount').listen()
-    optionFolder.add({ add () { console.log('clicked') } }, 'add')
+    optionFolder.add({ add () { } }, 'add')
     optionFolder.add(this.guiLet, 'colorSchema', ['Height', 'Terrain']).onChange(function (v) { self.changeColor(v) })
     optionFolder.add(this.material, 'opacity', 0, 1).listen()
     optionFolder.add(this.material, 'size', 0.1, 10).listen()

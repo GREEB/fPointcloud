@@ -1,6 +1,6 @@
 // Send fake data
 // Create fake data
-import { io } from '../server.js'
+import io from '../server.js'
 let fakeChords = []
 const createFakeData = () => {
   fakeChords = []

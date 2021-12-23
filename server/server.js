@@ -2,7 +2,6 @@ import dotenv from 'dotenv'
 import express from 'express'
 import authRouter from './routers/authRouter'
 import { db } from './config/db.config'
-import { httpServer } from './listeners/socketServer'
 import udpServer from './listeners/udpServer'
 
 dotenv.config()

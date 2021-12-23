@@ -36,7 +36,6 @@ export default {
   },
   watch: {
     connected (state) {
-      console.log(state)
       if (state) {
         this.io.connected = true
         this.io.show = true

@@ -37,11 +37,10 @@ export default {
   methods: {
     async login () {
       try {
-        const response = await this.$auth.loginWith('local', {
+        await this.$auth.loginWith('local', {
           data: this.loginData
         })
         this.$router.push('/')
-        console.log('res', response)
       } catch (err) {
         this.loadingText = err.response.data.error
         setTimeout(() => {

@@ -4,8 +4,6 @@ import fetch from 'node-fetch'
 import RefreshToken from '../models/refreshTokenModel.js'
 import config from '../config/auth.config'
 import User from '../models/userModel'
-import { discordAuth } from '../helpers/discord.js'
-import models from '../models/indexModel'
 
 const createToken = async (user) => {
   const expiredAt = new Date()
@@ -46,7 +44,6 @@ export const postLogin = async (req, res, next) => {
         }
       })
       const oauthData = await oauthResult.json()
-      console.log(oauthData)
       if (oauthData.error) {
         return res.status(401).json({
           error: 'Invalid Token'
@@ -90,7 +87,7 @@ export const postLogin = async (req, res, next) => {
       })
     }
   } catch (err) {
-    console.log(err)
+    throw new Error(err)
   }
 }
 
@@ -123,7 +120,7 @@ export const postRefreshToken = async (req, res, next) => {
       refresh_token: refreshToken.token
     })
   } catch (err) {
-    console.log(err)
+    throw new Error(err)
   }
 }
 export const getUser = (req, res, next) => {
@@ -139,7 +136,6 @@ export const getUser = (req, res, next) => {
 }
 
 export const getAllUsers = async (req, res, next) => {
-  console.log('gettall')
   const users = await User.findAll({
     attributes: ['username']
   })

@@ -1,7 +1,6 @@
 import throttle from 'lodash.throttle'
 import onChange from 'on-change'
 import consola from 'consola'
-import User from '../models/userModel'
 import { age } from '../helpers/defaults.js'
 import Udp from '../models/udpModel'
 import { io } from '../listeners/socketServer'

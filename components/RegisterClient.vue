@@ -119,10 +119,7 @@ export default {
   watch: {
     udpNew (state) {
       if (state) {
-        console.log('registerUDP', state)
         this.dialog = true
-      } else {
-        console.log(state)
       }
     }
   },
@@ -137,8 +134,7 @@ export default {
         this.$store.commit('sockets/game', this.dialogm1)
         this.dialog = false
       }
-      console.log(this.dialogm1)
-      // this.dialog = false
+      // this.dialog = fals∂e
     }
   }
 }

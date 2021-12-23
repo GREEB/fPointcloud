@@ -15,19 +15,15 @@ export const state = () => ({
 
 export const mutations = {
   SET_CONNECT (state) {
-    console.log('SET_CONNECT')
     state.connected = true
   },
   SET_DISCONNECT (state) {
-    console.log('SET_DISCONNECT')
     state.connected = false
   },
   SET_UDPREGISTER (state) {
-    console.log('SET_UDPREGISTER')
     state.udpNew = true
   },
   SET_GAME (state, sel) {
-    console.log('SET_GAME')
     state.game = sel
   }
 }
