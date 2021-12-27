@@ -1,6 +1,6 @@
 import throttle from 'lodash.throttle'
 import { io } from '../listeners/socketServer'
-import { users, lastSeen } from './userController.js' // Mongo Model
+import { users, lastSeen, idFromIp } from './userController.js' // Mongo Model
 
 /**
  *
@@ -31,44 +31,17 @@ import { users, lastSeen } from './userController.js' // Mongo Model
 //   console.log(`adding user with ip: ${ip}`)
 //   createUser(ip)
 // }
+export const throttledWrite = (x, y, z, surface, flying, ip, size) => {
+  const userId = idFromIp(ip)
+  /**
+   * Check users object to see if we want this data
+   * 
+   * save data to db
+   * 
+   * send data to user if online and global room
+   * 
+   */
 
-export const throttledWrite = throttle((x, y, z, surface, flying, ip, size, userID) => {
-  // import users
-  // match ip with user _id
-  // maybe give socket to push from users
-  if (users[userID] === undefined) { return }
-  if ('ip' in users[userID]) {
-    if ('socketID' in users[userID]) {
-      // console.log(`${ip} also connected with sockets`);
-
-    } else {
-      // console.log(`${ip} not connected to sockets`);
-    }
-  } else {
-    // console.log('only socket or something not good');
-  }
-  lastSeen(users[userID])
-  if (flying === 0) { return } // Abort if flying
-  if (x === 0 && y === 0 && z === 0) { return } // Abort if 000 chord
-  // TODO: Save Pos with user data only if we have it
-  // category=Server
-  // const newPos = new Position({
-  //   x,
-  //   y,
-  //   z,
-  //   surface,
-  //   user: users[userID].mongodb_id
-  // })
-  // newPos.save((err) => {
-  //   // TODO:Nuxt.Server: Check duplicates in cache?
-  //   // category=Server
-  //   if (err) { console.log('DUPLICATE FIXME') }
-  // })
-
-  io.to(users[userID].socketID).emit('chord', { // send chord via sockets to invididual
-    x, y, z, s: surface
-  })
-
-  // TODO:Send io to global room
-  // category=Server
-}, 100)
+  
+  //console.log(users[userId]);
+}

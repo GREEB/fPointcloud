@@ -3,7 +3,9 @@ import express from 'express'
 import authRouter from './routers/authRouter'
 import { db } from './config/db.config'
 import udpServer from './listeners/udpServer'
+import udpSender from './listeners/udpSender'
 
+console.log(udpSender);
 dotenv.config()
 
 const app = express()

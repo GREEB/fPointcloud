@@ -13,7 +13,7 @@ const udpClients = {}
 // FIXME: Dumbass loop, Looks for ips that have not send data in a while and delete them
 // category=Server
 setInterval(() => {
-  console.log('socket connectins: ' + io.engine.clientsCount)
+  console.log(users)
   Object.keys(users).forEach((id) => {
     if (age(users[id]) > maxClientTimeout) { delete users[id] }
   })
@@ -54,53 +54,57 @@ export const registerUDPUser = async (data, socket) => {
 
 export const addUDPUser = async (ip) => {
   const userId = idFromIp(ip).toString()
+  if (!(userId in users)) { users[userId] = {} } // If empty create
 
   // Check if we know this ip
-  const udpClient = await Udp.findOne({
-    where: {
-      mid: userId
-    }
-  })
+  const udpClient = await Udp.findOne({ where: { mid: userId } })
 
   if (udpClient) {
-    consola.log('udpClient: client found in db')
-  } else {
-    consola.log('udpClient: client not found in db')
-  }
-
-  if (!(userId in users)) {
-    consola.info('UDP: User not on website')
-    // If empty = user not on website
-    users[userId] = {}
-  } else {
-    // user on website
-    consola.info('UDP: User on website', users[userId].auth)
-    if (users[userId].auth !== false) {
-      // and authed already
-      consola.info('UDP: SocketIo found & authed', users[userId].auth)
-      const mid = userId
-      const findUDPclient = await Udp.findOne({
-        where: {
-          mid
-        }
-      })
-      if (!findUDPclient) {
-        // no UDP Client found ask to register
-        io.to(users[userId].socket.id).emit('registerUdp')
-      } else {
-        // client found
-        console.log(findUDPclient)
-      }
-    } else {
-      consola.info('UDP: SocketIo found & not authed', users[userId].auth)
-    }
-    // not authed but on website, ask to login?
-  }
-
-  // Add udp to user
+    console.log(udpClient);
+      // Add udp to user
   users[userId].udp = {}
   users[userId].udp.lastSeen = null
   users[userId].udp.firstSeen = Date.now()
+    // TODO: Add data to users[id]
+    consola.log('udpClient: client found in db')
+  } else {
+    // if user online
+    if ((userId in users)){
+      io.to(users[userId].socket.id).emit('registerUdp')
+    }
+    consola.log('udpClient: client not found in db')
+  }
+
+  // if (!(userId in users)) {
+  //   consola.info('UDP: User not on website')
+  //   // If empty = user not on website
+  //   users[userId] = {}
+  // } else {
+  //   // user on website
+  //   consola.info('UDP: User on website', users[userId].auth)
+  //   if (users[userId].auth !== false) {
+  //     // and authed already
+  //     consola.info('UDP: SocketIo found & authed', users[userId].auth)
+  //     const mid = userId
+  //     const findUDPclient = await Udp.findOne({
+  //       where: {
+  //         mid
+  //       }
+  //     })
+  //     if (!findUDPclient) {
+  //       // no UDP Client found ask to register
+  //       io.to(users[userId].socket.id).emit('registerUdp')
+  //     } else {
+  //       // client found
+  //       console.log(findUDPclient)
+  //     }
+  //   } else {
+  //     consola.info('UDP: SocketIo found & not authed', users[userId].auth)
+  //   }
+    // not authed but on website, ask to login?
+  // }
+
+
 }
 
 // Add io users to local object to match udp and socket

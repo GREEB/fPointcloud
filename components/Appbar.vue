@@ -25,9 +25,8 @@
     <div>
       <v-btn
         v-if="!$auth.loggedIn"
-        type="submit"
-
-        color="#5865F2"
+          color="blue darken-1"
+          text
         class="ma-2 white--text"
         :href="oauth"
       >
@@ -102,7 +101,7 @@ export default {
     title: 'PointCloud',
     gg: null,
     active: false,
-    oauth: 'https://discord.com/api/oauth2/authorize?client_id=918603750057328640&redirect_uri=http%3A%2F%2F192.168.0.42%3A3000%2Fcallback&response_type=code&scope=identify%20email'
+    oauth: 'https://discord.com/api/oauth2/authorize?client_id=918603750057328640&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fcallback&response_type=code&scope=identify%20email'
   }),
   computed: {
     isAuthenticated () {

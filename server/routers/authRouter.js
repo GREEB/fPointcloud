@@ -7,7 +7,6 @@ export default function (app) {
 
   authRouter.post('/login', postLogin)
   authRouter.post('/refresh-token', postRefreshToken)
-  authRouter.post('/users', isAuth, getAllUsers) // you should add isAuth for those routes that you gonna protect them
 
   authRouter.get('/user', getUser)
 

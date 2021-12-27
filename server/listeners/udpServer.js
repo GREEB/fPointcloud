@@ -14,11 +14,15 @@ const udpServer = dgram.createSocket('udp4')
 
 // }
 
+
+// write some data with a base64 encoding
+
+// the finish event is emitted when all data has been flushed from the stream
+
 udpServer.on('message', (msg, rinfo) => {
   if (rinfo !== undefined) {
     makeUDPuser(rinfo.address)
   }
-
   // write some data with a base64 encoding
   // fs.appendFile('./stream.txt', msg.toString('hex') + '\n', (err) => {
   //   if (err) { throw err }
@@ -77,7 +81,7 @@ udpServer.on('message', (msg, rinfo) => {
 
   // TODO: Throttle write for each client
   // category=Server
-  throttledWrite(x, y, z, surface, flying, rinfo.address, rinfo.size, rinfo.address)
+  throttledWrite(x, y, z, surface, flying, rinfo.address, rinfo.size)
 })
 
 udpServer.on('error', (err) => {

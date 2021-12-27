@@ -4,7 +4,7 @@
       small
       icon
       class="githubButton"
-      color="#4078c0"
+      color="#151515"
     >
       <v-icon>mdi-github</v-icon>
     </v-btn>

@@ -6,6 +6,8 @@ import config from '../config/auth.config'
 import User from '../models/userModel'
 
 const createToken = async (user) => {
+  console.log('createToken')
+
   const expiredAt = new Date()
   expiredAt.setSeconds(expiredAt.getSeconds() + config.jwtRefreshExpiration)
 
@@ -22,6 +24,7 @@ let user
 let token
 
 export const postLogin = async (req, res, next) => {
+console.log('postLogin')
   try {
     // Get Discord Data
     const {
@@ -92,6 +95,8 @@ export const postLogin = async (req, res, next) => {
 }
 
 export const postRefreshToken = async (req, res, next) => {
+  console.log('postRefreshToken')
+
   const { refresh_token: requestToken } = req.body
 
   try {
@@ -124,21 +129,38 @@ export const postRefreshToken = async (req, res, next) => {
     throw new Error(err)
   }
 }
-export const getUser = (req, res, next) => {
-  res.status(200).json({
-    user: {
-      id: user.id,
-      did: user.did,
-      username: user.username,
-      email: user.email,
-      avatar: user.avatar
+export const getUser = async (req, res, next) => {
+  let id, user
+  console.log(req.headers);
+  // user login from cookie check if token expired or idk if expire refresh?
+  jwt.verify(req.headers.authorization.split(' ')[1], config.secret, function (err, decoded) {
+    if (err) { return next(new Error('Authentication error')) }
+    id = decoded.id
+  })
+
+  user = await User.findOne({
+    where: {
+      id
     }
   })
-}
+  if (user){
+    res.status(200).json({
+      user: {
+        id: user.id,
+        did: user.did,
+        username: user.username,
+        email: user.email,
+        avatar: user.avatar
+      }
+    })
+  }else{
+    res.status(200).json({
+      user: {
+        id:id,
+      }
+    })
+  }
+  console.log(user);
 
-export const getAllUsers = async (req, res, next) => {
-  const users = await User.findAll({
-    attributes: ['username']
-  })
-  res.status(200).json({ users })
+
 }
