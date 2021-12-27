@@ -1,30 +1,28 @@
 import jwt from 'jsonwebtoken'
 import { v4 as uuidv4 } from 'uuid'
 import fetch from 'node-fetch'
-import RefreshToken from '../models/refreshTokenModel.js'
 import config from '../config/auth.config'
-import User from '../models/userModel'
+import models from '../models/indexModel'
 
 const createToken = async (user) => {
-  console.log('createToken')
+  console.log('createToken', user.id)
 
   const expiredAt = new Date()
   expiredAt.setSeconds(expiredAt.getSeconds() + config.jwtRefreshExpiration)
 
   const _token = uuidv4()
-  const refreshToken = await RefreshToken.create({
+  const refreshToken = await models.refreshToken.create({
     token: _token,
-    userId: user.id,
-    expiryDate: expiredAt.getTime()
+    expiryDate: expiredAt.getTime(),
+    userId: user.id
   })
   return refreshToken.token
 }
 
-let user
-let token
-
 export const postLogin = async (req, res, next) => {
-console.log('postLogin')
+  let user
+  let token
+  console.log('postLogin')
   try {
     // Get Discord Data
     const {
@@ -67,13 +65,13 @@ console.log('postLogin')
           error: 'Invalid Token'
         })
       }
-      user = await User.findOne({
+      user = await models.user.findOne({
         where: {
           email
         }
       })
       if (!user) {
-        user = await User.create({
+        user = await models.user.create({
           did,
           username,
           email,
@@ -103,14 +101,14 @@ export const postRefreshToken = async (req, res, next) => {
     if (!requestToken) {
       return res.status(403).json({ message: 'Refresh Token is required!' })
     }
-    const refreshToken = await RefreshToken.findOne({
+    const refreshToken = await models.refreshToken.findOne({
       where: { token: requestToken }
     })
     if (!refreshToken) {
       return res.status(403).json({ message: 'Refresh token does not exist!' })
     }
     if (refreshToken.expiryDate.getTime() < new Date().getTime()) {
-      await RefreshToken.destroy({ where: { id: refreshToken.id } })
+      await models.refreshToken.destroy({ where: { id: refreshToken.id } })
 
       return res.status(403).json({
         message: 'Refresh token was expired. Please login again!'
@@ -130,20 +128,19 @@ export const postRefreshToken = async (req, res, next) => {
   }
 }
 export const getUser = async (req, res, next) => {
-  let id, user
-  console.log(req.headers);
+  let id
   // user login from cookie check if token expired or idk if expire refresh?
   jwt.verify(req.headers.authorization.split(' ')[1], config.secret, function (err, decoded) {
     if (err) { return next(new Error('Authentication error')) }
     id = decoded.id
   })
 
-  user = await User.findOne({
+  const user = await models.user.findOne({
     where: {
       id
     }
   })
-  if (user){
+  if (user) {
     res.status(200).json({
       user: {
         id: user.id,
@@ -153,14 +150,12 @@ export const getUser = async (req, res, next) => {
         avatar: user.avatar
       }
     })
-  }else{
+  } else {
     res.status(200).json({
       user: {
-        id:id,
+        id
       }
     })
   }
-  console.log(user);
-
-
+  console.log(user)
 }

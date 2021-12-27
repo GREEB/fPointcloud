@@ -26,7 +26,8 @@ export const lastSeen = (obj) => {
 
 // User send back to register call here
 export const registerUDPUser = async (data, socket) => {
-  const mid = idFromSocket(socket).toString()
+  const userId = idFromSocket(socket)
+  const mid = userId.toString()
 
   if (socket.decoded !== false) {
     const findUDPclient = await Udp.findOne({
@@ -48,33 +49,39 @@ export const registerUDPUser = async (data, socket) => {
       console.log(createUDPclient)
       // send back to client
     }
+    users[userId].udp.known = true
   }
   // return not authed
 }
 
 export const addUDPUser = async (ip) => {
   const userId = idFromIp(ip).toString()
-  if (!(userId in users)) { users[userId] = {} } // If empty create
+  if (!(userId in users)) {
+    users[userId] = {}
+  } // If empty create
+  if (users[userId].udp === undefined) {
+    users[userId].udp = {}
+  }
 
   // Check if we know this ip
   const udpClient = await Udp.findOne({ where: { mid: userId } })
 
   if (udpClient) {
-    console.log(udpClient);
-      // Add udp to user
-  users[userId].udp = {}
-  users[userId].udp.lastSeen = null
-  users[userId].udp.firstSeen = Date.now()
-    // TODO: Add data to users[id]
+    // Add udp to user
+    users[userId].udp.known = true
     consola.log('udpClient: client found in db')
   } else {
     // if user online
-    if ((userId in users)){
+    if ((userId in users) && users[userId].socket !== undefined) {
       io.to(users[userId].socket.id).emit('registerUdp')
+    } else {
+      users[userId].udp.known = false
+      // unreg and not on frontend
     }
     consola.log('udpClient: client not found in db')
   }
-
+  users[userId].udp.lastSeen = null
+  users[userId].udp.firstSeen = Date.now()
   // if (!(userId in users)) {
   //   consola.info('UDP: User not on website')
   //   // If empty = user not on website
@@ -101,17 +108,15 @@ export const addUDPUser = async (ip) => {
   //   } else {
   //     consola.info('UDP: SocketIo found & not authed', users[userId].auth)
   //   }
-    // not authed but on website, ask to login?
+  // not authed but on website, ask to login?
   // }
-
-
 }
 
 // Add io users to local object to match udp and socket
 export const addIOuser = (socket) => {
   const userId = idFromSocket(socket) // Create ID
   if (!(userId in users)) { users[userId] = {} } // If empty create
-  console.log(socket.decoded)
+
   if (socket.decoded === false) {
     // Add connectino with no auth for global map
     users[userId].auth = false
@@ -120,6 +125,11 @@ export const addIOuser = (socket) => {
     users[userId].auth = socket.decoded
     users[userId].auth.cookie = socket.handshake.headers.cookie
   }
+
+  if (users[userId].udp !== undefined && users[userId].udp.known === false) {
+    io.to(socket.id).emit('registerUdp')
+  }
+
   users[userId].socket = {}
   users[userId].socket.id = socket.id
   users[userId].socket.lastSeen = null
