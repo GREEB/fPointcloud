@@ -14,7 +14,6 @@ const udpServer = dgram.createSocket('udp4')
 
 // }
 
-
 // write some data with a base64 encoding
 
 // the finish event is emitted when all data has been flushed from the stream
@@ -42,6 +41,7 @@ udpServer.on('message', (msg, rinfo) => {
   // Road edgde detection build in?
   // WheelOnRumbleStripFl(this byte[] bytes) { return GetSingle(bytes, 116)
 
+  // public static float Speed(this byte[] bytes) { return GetSingle(bytes, 244 + BufferOffset); }
   // Get Dirt tele to see if not on real road
   // SurfaceRumbleRr(this byte[] bytes) { return GetSingle(bytes, 160)
   const srFL = parseFloat(msg.readFloatLE(148))
@@ -65,9 +65,11 @@ udpServer.on('message', (msg, rinfo) => {
 
   // Car XYZ
   // public static float PositionZ(this byte[] bytes) { return GetSingle(bytes, 240 + BufferOffset)
+
   const x = parseFloat(msg.readFloatLE(232 + 12)).toFixed(1)
   const y = parseFloat(msg.readFloatLE(236 + 12)).toFixed(1)
   const z = parseFloat(msg.readFloatLE(240 + 12)).toFixed(1)
+  const speed = parseInt(msg.readFloatLE(244 + 12))
 
   flying = parseFloat(nstFL) + parseFloat(nstFR) + parseFloat(nstRL) + parseFloat(nstRR)
 
@@ -79,9 +81,10 @@ udpServer.on('message', (msg, rinfo) => {
     surface = 0
   }
 
+  if ((parseInt(x) + parseInt(y) + parseInt(z)) === 0.0) { return }
   // TODO: Throttle write for each client
   // category=Server
-  throttledWrite(x, y, z, surface, flying, rinfo.address, rinfo.size)
+  throttledWrite(x, y, z, speed, surface, flying, rinfo.address, rinfo.size)
 })
 
 udpServer.on('error', (err) => {

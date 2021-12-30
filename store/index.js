@@ -1,3 +1,5 @@
+import { unpack } from 'msgpackr'
+
 export const getters = {
   isAuthenticated (state) {
     return state.auth.loggedIn // auth object as default will be added in vuex state, when you initialize nuxt auth
@@ -10,7 +12,9 @@ export const getters = {
 export const state = () => ({
   connected: false,
   udpNew: false,
-  game: ''
+  game: '',
+  chord: {},
+  chordPack: []
 })
 
 export const mutations = {
@@ -25,10 +29,22 @@ export const mutations = {
   },
   SET_GAME (state, sel) {
     state.game = sel
+  },
+  SET_CHORD (state, msg) {
+    state.chord = msg
+  },
+  SET_CHORDPACK (state, msg) {
+    state.chordPack = msg
   }
 }
 
 export const actions = {
+  FORMAT_CHORDPACK ({ commit }, msg) {
+    commit('SET_CHORDPACK', unpack(toBuffer(msg)))
+  },
+  FORMAT_CHORD ({ commit }, msg) {
+    commit('SET_CHORD', msg)
+  },
   CONNECT ({ commit }) {
     commit('SET_CONNECT')
   },
@@ -41,4 +57,13 @@ export const actions = {
   UDPSETGAME ({ commit }, msg) {
     commit('SET_GAME', msg)
   }
+}
+
+function toBuffer (ab) {
+  const buf = Buffer.alloc(ab.byteLength)
+  const view = new Uint8Array(ab)
+  for (let i = 0; i < buf.length; ++i) {
+    buf[i] = view[i]
+  }
+  return buf
 }

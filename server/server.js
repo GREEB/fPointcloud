@@ -4,6 +4,10 @@ import authRouter from './routers/authRouter'
 import { db } from './config/db.config'
 import udpServer from './listeners/udpServer'
 import { sendUDP } from './listeners/udpSender'
+const wait4sync = async () => {
+  await db.sync()
+}
+wait4sync()
 
 dotenv.config()
 
@@ -21,22 +25,21 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   next()
 })
+setTimeout(() => {
+  udpServer.bind(5300)
 
-db.sync()
-
-udpServer.bind(5300)
-
-udpServer.on('listening', () => {
-  const address = udpServer.address()
-  console.log(`udpServer listening on ${address.address}:${address.port}`)
-})
+  udpServer.on('listening', () => {
+    const address = udpServer.address()
+    console.log(`udpServer listening on ${address.address}:${address.port}`)
+  })
+}, 10000)
 
 app.listen(3002, () => {
   console.log('Api listening on 3002')
 })
 
-setTimeout(() => {
-  sendUDP()
-}, 10000)
+// setTimeout(() => {
+//   sendUDP()
+// }, 10000)
 
 export default app

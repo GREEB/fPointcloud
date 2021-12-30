@@ -4,6 +4,7 @@ import { Server } from 'socket.io'
 import jwt from 'jsonwebtoken'
 import config from '../config/auth.config'
 import { addIOuser, registerUDPUser } from '../controllers/userController'
+import { sendInitData } from '../controllers/dataController'
 
 dotenv.config()
 
@@ -39,7 +40,11 @@ io.use(function (socket, next) {
   }
 }).on('connection', (socket) => {
   console.log('ON CONNECTION')
+  if (socket.handshake.headers.path === '/') {
+    socket.join('home')
+  }
   addIOuser(socket)
+  sendInitData(socket)
   socket.on('sockets/game', (data) => {
     registerUDPUser(data, socket)
   })

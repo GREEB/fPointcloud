@@ -1,7 +1,6 @@
 <template>
   <div class="ThreeContainer">
-    <PointCloud />
+    <RayCasting />
     <RegisterClient />
-    <Sockets />
   </div>
 </template>

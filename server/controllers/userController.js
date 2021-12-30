@@ -2,9 +2,10 @@ import throttle from 'lodash.throttle'
 import onChange from 'on-change'
 import consola from 'consola'
 import { age } from '../helpers/defaults.js'
-import Udp from '../models/udpModel'
-import { io } from '../listeners/socketServer'
-export const users = {} // Main user obj to look at
+import { io } from '../listeners/socketServer' // Main user obj to look at
+import models from '../models/indexModel.js'
+
+export const users = {}
 
 const maxClientTimeout = 10 // UDP client "timeout" in seconds
 
@@ -13,7 +14,7 @@ const udpClients = {}
 // FIXME: Dumbass loop, Looks for ips that have not send data in a while and delete them
 // category=Server
 setInterval(() => {
-  console.log(users)
+  // console.log(users)
   Object.keys(users).forEach((id) => {
     if (age(users[id]) > maxClientTimeout) { delete users[id] }
   })
@@ -26,30 +27,32 @@ export const lastSeen = (obj) => {
 
 // User send back to register call here
 export const registerUDPUser = async (data, socket) => {
+  console.log('register udp')
   const userId = idFromSocket(socket)
   const mid = userId.toString()
 
   if (socket.decoded !== false) {
-    const findUDPclient = await Udp.findOne({
+    const findUDPclient = await models.udp.findOne({
       where: {
         mid
       }
     })
     if (findUDPclient) {
+      users[userId].udp.known = { id: findUDPclient.id }
+
       // found client
       // send back that we already have registered
       console.log('client already registered')
     } else {
       // create client
-      const createUDPclient = await Udp.create({
+      const createUDPclient = await models.udp.create({
         userId: socket.decoded.id,
         mid: idFromSocket(socket),
         game: data.data
       })
-      console.log(createUDPclient)
       // send back to client
+      users[userId].udp.known = { id: createUDPclient.id }
     }
-    users[userId].udp.known = true
   }
   // return not authed
 }
@@ -64,11 +67,11 @@ export const addUDPUser = async (ip) => {
   }
 
   // Check if we know this ip
-  const udpClient = await Udp.findOne({ where: { mid: userId } })
+  const udpClient = await models.udp.findOne({ where: { mid: userId } })
 
   if (udpClient) {
     // Add udp to user
-    users[userId].udp.known = true
+    users[userId].udp.known = { id: udpClient.id }
     consola.log('udpClient: client found in db')
   } else {
     // if user online

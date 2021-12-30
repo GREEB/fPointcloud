@@ -79,6 +79,7 @@ export default {
 
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
   buildModules: [
+    '@nuxtjs/fontawesome',
     // https://go.nuxtjs.dev/eslint
     '@nuxtjs/eslint-module',
     // https://go.nuxtjs.dev/vuetify
@@ -89,12 +90,28 @@ export default {
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
+    'vue-toastification/nuxt',
     'nuxt-socket-io',
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
     // https://go.nuxtjs.dev/pwa
     '@nuxtjs/pwa'
   ],
+  toast: {
+    position: 'bottom-left',
+    hideProgressBar: true,
+    timeout: 2194,
+    closeOnClick: false,
+    pauseOnFocusLoss: true,
+    pauseOnHover: true,
+    // draggable: true,
+    // draggablePercent: 0.6,
+    //
+    showCloseButtonOnHover: false,
+    // closeButton: 'button',
+    icon: true
+    // rtl: false
+  },
   io: {
     sockets: [
       {
@@ -105,7 +122,10 @@ export default {
           actions: [
             'connect --> CONNECT',
             'disconnect --> DISCONNECT',
-            'registerUdp --> UDPREGISTER'
+            'registerUdp --> UDPREGISTER',
+            'chord --> FORMAT_CHORD',
+            'chordPack --> FORMAT_CHORDPACK'
+
           ],
           emitBacks: [
             'sockets/game'
@@ -145,7 +165,6 @@ export default {
       }
     }
   },
-
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
     transpile: [

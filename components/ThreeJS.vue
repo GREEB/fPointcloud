@@ -1,38 +1,74 @@
 <template>
   <div>
-    <v-snackbar
-      v-model="io.show"
-      left
-      bottom
-      flat
-      dense
-      :color="io.connected ? 'success' : 'warning'"
-      outlined
-      timeout="1500"
-    >
-      {{ io.text }}
-    </v-snackbar>
     <div class="GUI" />
     <div class="STATS" />
     <div class="THREE" />
+
+    <script id="vertexshader" type="x-shader/x-vertex">
+      attribute float size;
+      attribute vec3 customColor;
+
+      varying vec3 vColor;
+
+      void main() {
+
+      vColor = customColor;
+
+      vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+
+      gl_PointSize = 1.0;
+
+      gl_Position = projectionMatrix * mvPosition;
+
+      }
+    </script>
+
+    <script id="fragmentshader" type="x-shader/x-fragment">
+      uniform vec3 color;
+      uniform sampler2D pointTexture;
+
+      varying vec3 vColor;
+
+      void main() {
+
+      gl_FragColor = vec4( color * vColor, 1.0 );
+      // gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
+
+      }
+    </script>
   </div>
 </template>
 
 <script>
-import { WebGLRenderer, PointsMaterial, Object3D, Vector3, PerspectiveCamera, Scene, Color, BufferGeometry, Float32BufferAttribute, Points, BoxHelper } from 'three/build/three.module.js'
+import {
+  AdditiveBlending,
+  BoxGeometry,
+  BufferGeometry,
+  BoxHelper,
+  Color,
+  Clock,
+  Float32BufferAttribute,
+  MeshBasicMaterial,
+  Mesh,
+  Vector2,
+  Object3D,
+  ShaderMaterial,
+  PerspectiveCamera,
+  Points,
+  Raycaster,
+  Scene,
+  Vector3,
+  WebGLRenderer
+} from 'three/build/three.module.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js'
+import TWEEN from '@tweenjs/tween.js'
 // import { io } from 'socket.io-client'
 
 export default {
   data () {
     return {
-      io: {
-        show: false,
-        connected: false,
-        text: 'Hello, I\'m a snackbar'
-      },
       points: null,
       controls: null,
       material: null,
@@ -42,69 +78,57 @@ export default {
       scene: null,
       camera: null,
       stats: null,
-
+      raycaster: new Raycaster(),
+      mouse: new Vector2(),
       pointsCount: null,
       lastBgColor: [50, 50, 50],
 
       guiLet: {},
-      colors: {}
+      colors: {},
+      // Pointer Vars
+      intersection: null,
+      spheresIndex: 0,
+      clock: null,
+      toggle: 0,
+      spheres: [],
+
+      //
+      keepingTrackOfTweens: []
+    }
+  },
+  computed: {
+    chords () {
+      return this.$store.state.chord
+    },
+    chordPack () {
+      return this.$store.state.chordPack
+    }
+  },
+  watch: {
+    chords (val) {
+      this.parsePoint(val)
+      this.tweenToWhite({ index: (this.pointsCount / 3) - 1 }, 5000)
+    },
+    chordPack (val) {
+      const now = new Date()
+      for (let i = 0; i < val.alluserPos.length; i++) {
+        this.parsePoint(val.alluserPos[i], 'pack')
+
+        if ((val.alluserPos.length - 1) === i) {
+          this.geometry.computeBoundingSphere()
+          this.geometry.computeBoundingBox()
+          this.$toast.info(`${val.alluserPos.length} points drawn in ${(new Date() - now)} ms`)
+        }
+      }
     }
   },
   mounted () {
-    // TODO: Move Socket logic and handle reconnection if unsuccessfully connection
-    // category=Three
-    // FIXME: Dont read auth from here read from callback
-    // const socket = io.connect('http://localhost:9000');
-    // socket.on('connect', () => {
-    //   socket
-    //     .emit('authenticate', { token: jwt }) //send the jwt
-    //     .on('authenticated', () => {
-    //       //do other things
-    //     })
-    //     .on('unauthorized', (msg) => {
-    //       console.log(`unauthorized: ${JSON.stringify(msg.data)}`);
-    //       throw new Error(msg.data.type);
-    //     })
-    // });
-    //     const cookie = JSON.stringify({loggedIn: fasle})
-
-    // if (this.$auth.loggedIn) {
-    //       const cookie = JSON.stringify({ ...this.$auth.$storage.getCookies(), ...this.$auth.user })
-
-    //   console.log({ ...this.$auth.$storage.getCookies(), ...this.$auth.user })
-    // }
-    // let cookie = { auth: false }
-    // if (this.$auth.loggedIn) {
-    //   cookie = { ...this.$auth.$storage.getCookies(), ...this.$auth.user }
-    // }
-    // const socket = io(this.$config.url + ':' + this.$config.socketPort, { auth: { cookie } })
-
-    // socket.on('connect', () => {
-    //   this.io.text = 'Sockets Connected: ' + socket.id
-    //   this.io.show = true
-    //   this.io.connected = true
-    // })
-    // socket.on('disconnect', () => {
-    //   this.io.text = 'look he disconnected: ' + socket.id
-    //   this.io.connected = false
-    //   this.io.show = true
-    // })
-    // socket
-    //   .on('chord', (msg, cb) => {
-    //     this.parsePoint(msg)
-    //   })
-    // socket
-    //   .on('chordPack', (msg, cb) => {
-    //     for (let index = 0; index < msg.length; index++) {
-    //       const element = msg[index]
-    //       this.parsePoint(element)
-    //     }
-    //   })
-
     Object3D.DefaultUp = new Vector3(0, 0, 1)
 
-    this.camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 13000)
+    this.camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000)
     this.scene = new Scene()
+    this.clock = new Clock()
+
     // this.scene.fog = new Fog(0x050505, 1, 15000)
     const particles = 500000
     this.geometry = new BufferGeometry()
@@ -114,16 +138,23 @@ export default {
     this.colors.terrain = new Float32Array(particles * 3)
     this.geometry.setAttribute('position', new Float32BufferAttribute(positions, 3))
     this.geometry.setAttribute('color', new Float32BufferAttribute(this.colors.default, 3))
-
+    const bg = new BoxGeometry(1, 1, 1)
+    const bm = new MeshBasicMaterial({ color: 0x000000 })
+    const cube = new Mesh(bg, bm)
+    this.scene.add(cube)
     // TODO: Change shape can be done with a texture but not cool maybe shader? not sure what any paras do
     // category=Three
-    this.material = new PointsMaterial({
-      size: 20,
-      vertexColors: true
+    this.material = new ShaderMaterial({
+      vertexShader: document.getElementById('vertexshader').textContent,
+      fragmentShader: document.getElementById('fragmentshader').textContent,
       // blending: AdditiveBlending,
       // transparent: true,
       // sizeAttenuation: true,
       // opacity: 0.4
+      vertexColors: true,
+      blending: AdditiveBlending,
+      depthTest: false,
+      transparent: true
     })
 
     // this.material.blending = CustomBlending
@@ -152,13 +183,10 @@ export default {
     // document.getElementsByClassName('STATS')[0].appendChild(this.stats.dom)
     window.addEventListener('resize', this.onWindowResize)
     this.controls = new OrbitControls(this.camera, this.renderer.domElement)
-
-    this.controls.screenSpacePanning = true
+    // this.controls.screenSpacePanning = true
 
     this.geometry.computeBoundingBox()
-    this.camera.position.z = 4522
-    this.camera.position.x = 5905
-    this.camera.position.y = -2704
+    this.camera.position.z = 500
     const bBox = this.geometry.boundingBox
     const center = new Vector3()
     bBox.getCenter(center)
@@ -177,7 +205,7 @@ export default {
     optionFolder.add({ add () { } }, 'add')
     optionFolder.add(this.guiLet, 'colorSchema', ['Height', 'Terrain']).onChange(function (v) { self.changeColor(v) })
     optionFolder.add(this.material, 'opacity', 0, 1).listen()
-    optionFolder.add(this.material, 'size', 0.1, 10).listen()
+    // optionFolder.add(this.material, 'size', 0.1, 10).listen()
     optionFolder.addColor(this.guiLet, 'backgroundColor').name('Background').onChange(function (value) { self.setBackgroundColor(value) })
     optionFolder.add(this.guiLet, 'boxVisible').name('Bounding box').onChange(function (value) { this.box.visible = value })
 
@@ -199,6 +227,8 @@ export default {
     //   this.renderer.setClearColor(new Color().setRGB(arrayRGB[0], arrayRGB[1], arrayRGB[2]))
     //   // this.renderer.clear(true, true, true)
     // }
+    window.addEventListener('mousemove', this.onMouseMove, false)
+    window.addEventListener('mousedown', this.onMouseDown, true)
     this.animate()
   },
   methods: {
@@ -211,29 +241,32 @@ export default {
       const positions = this.points.geometry.attributes.position.array
       const defaultColor = this.points.geometry.attributes.color.array
 
+      /**
+     * Scaling down chords helps threejs with camera not tested best way
+     */
       positions[this.pointsCount] = xyz[0]
       positions[this.pointsCount + 1] = xyz[1]
       positions[this.pointsCount + 2] = xyz[2]
 
-      defaultColor[this.pointsCount] = heightRGB[0]
-      defaultColor[this.pointsCount + 1] = heightRGB[1]
-      defaultColor[this.pointsCount + 2] = heightRGB[2]
+      defaultColor[this.pointsCount] = heightRGB[2] / 255
+      defaultColor[this.pointsCount + 1] = heightRGB[0] / 255
+      defaultColor[this.pointsCount + 2] = heightRGB[1] / 255
 
-      this.colors.default[this.pointsCount] = 255
-      this.colors.default[this.pointsCount + 1] = 255
-      this.colors.default[this.pointsCount + 2] = 255
+      this.colors.default[this.pointsCount] = 255 / 255
+      this.colors.default[this.pointsCount + 1] = 255 / 255
+      this.colors.default[this.pointsCount + 2] = 255 / 255
 
-      this.colors.height[this.pointsCount] = heightRGB[0]
-      this.colors.height[this.pointsCount + 1] = heightRGB[1]
-      this.colors.height[this.pointsCount + 2] = heightRGB[2]
+      this.colors.height[this.pointsCount] = heightRGB[0] / 255
+      this.colors.height[this.pointsCount + 1] = heightRGB[1] / 255
+      this.colors.height[this.pointsCount + 2] = heightRGB[2] / 255
 
-      this.colors.terrain[this.pointsCount] = terrainRGB[0]
-      this.colors.terrain[this.pointsCount + 1] = terrainRGB[1]
-      this.colors.terrain[this.pointsCount + 2] = terrainRGB[2]
+      this.colors.terrain[this.pointsCount] = terrainRGB[0] / 255
+      this.colors.terrain[this.pointsCount + 1] = terrainRGB[1] / 255
+      this.colors.terrain[this.pointsCount + 2] = terrainRGB[2] / 255
 
       this.points.geometry.attributes.position.needsUpdate = true // required after the first render
       this.points.geometry.attributes.color.needsUpdate = true
-      this.geometry.computeBoundingBox()
+      // this.geometry.computeBoundingBox()
       // this.geometry.computeBoundingSphere()
       // this.geometry.computeVertexNormals()
       this.geometry.setDrawRange(0, this.pointsCount / 3)
@@ -264,10 +297,14 @@ export default {
       } else {
         terrainRGB = [205 / 255, 205 / 255, 205 / 255]
       }
+      /**
+       * TODO: We flip cordinate system here to line up with our three scene there probably is a better way
+       * Could also be we fuck up when saving this data earlier idk
+       **/
       const xyz = [
-        parseFloat(posData.x),
-        parseFloat(posData.y),
-        parseFloat(posData.z)
+        parseFloat(posData.x / 20),
+        parseFloat(posData.z / 20),
+        parseFloat(posData.y / 20)
       ]
 
       this.addPoint(xyz, heightRGB, terrainRGB)
@@ -289,13 +326,97 @@ export default {
     },
     animate () {
       this.controls.update()
-
+      TWEEN.update()
       requestAnimationFrame(this.animate)
       this.render()
       this.stats.update()
     },
     render () {
+      this.raycaster.setFromCamera(this.mouse, this.camera)
+      const intersects = this.raycaster.intersectObject(this.points)
+      this.intersection = (intersects.length) > 0 ? intersects[0] : null
+
+      for (let i = 0; i < intersects.length; i++) {
+        this.tweenToWhite(intersects[i], 500)
+        // intersects[i].object.material.color.set(0xFF0000)
+      }
+      // console.log(this.intersection)
+      // if (this.toggle > 0.02 && this.intersection !== null) {
+      //   this.spheres[this.spheresIndex].position.copy(this.intersection.point)
+      //   this.spheres[this.spheresIndex].scale.set(1, 1, 1)
+      //   this.spheresIndex = (this.spheresIndex + 1) % this.spheres.length
+
+      //   this.toggle = 0
+      // }
+
+      // for (let i = 0; i < this.spheres.length; i++) {
+      //   const sphere = this.spheres[i]
+      //   sphere.scale.multiplyScalar(0.98)
+      //   sphere.scale.clampScalar(0.01, 1)
+      // }
+
+      // this.toggle += this.clock.getDelta()
       this.renderer.render(this.scene, this.camera)
+    },
+    onMouseMove (event) {
+      const canvas = this.renderer.domElement
+
+      const rect = canvas.getBoundingClientRect()
+      const x = event.clientX - rect.left
+      const y = event.clientY - rect.top
+
+      this.mouse.x = (x / canvas.clientWidth) * 2 - 1
+      this.mouse.y = (y / canvas.clientHeight) * -2 + 1
+    },
+    onMouseDown (event) {
+
+      // if (intersects.length) {
+      //   this.controls.target.copy(intersects[0].point.clone())
+      // }
+    },
+    tweenToWhite (el, duration) {
+      if (this.keepingTrackOfTweens.includes(el.index)) {
+        return
+      }
+      this.keepingTrackOfTweens.push(el.index)
+      // this.points.geometry.attributes.color.array[el.index * 3] = Color.lerpHSL(0, 1)
+      // this.points.geometry.attributes.color.array[el.index * 3 + 1] = Color.lerpHSL(0, 1)
+      // this.points.geometry.attributes.color.array[el.index * 3 + 2] = Color.lerpHSL(0, 1)
+      // this.points.geometry.attributes.color.needsUpdate = true
+
+      const target = {
+        r: this.points.geometry.attributes.color.array[el.index * 3],
+        g: this.points.geometry.attributes.color.array[el.index * 3 + 1],
+        b: this.points.geometry.attributes.color.array[el.index * 3 + 2]
+      }
+      const original = {
+        r: this.points.geometry.attributes.color.array[el.index * 3],
+        g: this.points.geometry.attributes.color.array[el.index * 3 + 1],
+        b: this.points.geometry.attributes.color.array[el.index * 3 + 2]
+      }
+      const that = this
+      const tweenTo = new TWEEN.Tween(target)
+        .to({ r: 1, g: 1, b: 1 }, duration / 10)
+        .onUpdate(function () {
+          that.updatePointColor(target, el)
+        })
+        .start()
+
+      const tweenBacl = new TWEEN.Tween(target)
+        .to(original, duration)
+        .onUpdate(function () {
+          that.updatePointColor(target, el)
+        })
+        .onComplete(function () {
+          that.keepingTrackOfTweens = that.keepingTrackOfTweens.filter(item => item !== el.index)
+        })
+      tweenTo.chain(tweenBacl)
+    },
+    updatePointColor (color, el) {
+      this.points.geometry.attributes.color.array[el.index * 3] = color.r
+      this.points.geometry.attributes.color.array[el.index * 3 + 1] = color.g
+      this.points.geometry.attributes.color.array[el.index * 3 + 2] = color.b
+      this.points.geometry.attributes.color.needsUpdate = true
     }
   }
 
