@@ -1,69 +1,65 @@
-# fPointcloud
+# Forza Point Cloud
+[![License](https://img.shields.io/badge/License-MIT-blue)](#license)
+[![Build Status](https://app.travis-ci.com/GREEB/ForzaPointCloud.svg?branch=master)](https://app.travis-ci.com/GREEB/fPointcloud)
+[![issues](https://github.com/GREEB/ForzaPointCloud/workflows/todo2issue/badge.svg)](https://github.com/GREEB/fPointcloud/actions?query=workflow:"todo2issue")
+![](https://user-images.githubusercontent.com/1221769/148322387-67a89550-77f5-4c04-80ac-af9329859144.gif)
 
-## Build Setup
+WIP!
+
+## Features
+
+- [x]  Three: dynamic point cloud
+- [x]  Nuxt: Discord login
+- [x]  Nuxt: Simple Frontend
+
+## Bugs
+
+Too many atm.
+
+## Contributing
+
+Contributions are always welcome!
+
+Look at issues
+
+## Development
+
+First make sure you copy the example.env to .env
+
+```cp example.env .env```
+
+Read "Enviroment Variables" below
+
 
 ```bash
-# install dependencies
-$ yarn install
+  yarn Install
+  yarn dev
+```
+    
+## Environment Variables
 
-# serve with hot reload at localhost:3000
-$ yarn dev
+To run this project, you will need to add the following environment variables to your .env file
 
-# build for production and launch server
-$ yarn build
-$ yarn start
+`IOPORT` Socket.io port
 
-# generate static project
-$ yarn generate
+`URL` Url for CORS and ssl later not really implemented yet if empty defaults to localhost
+
+`PORT` App port also for CORS and stuff
+
+`JWTSECRET` Secret used for JWT, can be generated with:
+```bash
+node -e "console.log(require('crypto').randomBytes(256).toString('base64'));"
+#or
+openssl rand 256 | base64
 ```
 
-For detailed explanation on how things work, check out the [documentation](https://nuxtjs.org).
+`POSTGRES` Postgres URL
 
-## Special Directories
+`DISCORDID` Discord oAuth id
 
-You can create the following extra directories, some of which have special behaviors. Only `pages` is required; you can delete them if you don't want to use their functionality.
-
-### `assets`
-
-The assets directory contains your uncompiled assets such as Stylus or Sass files, images, or fonts.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/assets).
-
-### `components`
-
-The components directory contains your Vue.js components. Components make up the different parts of your page and can be reused and imported into your pages, layouts and even other components.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/components).
-
-### `layouts`
-
-Layouts are a great help when you want to change the look and feel of your Nuxt app, whether you want to include a sidebar or have distinct layouts for mobile and desktop.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/layouts).
+`DISCORDSECRET` Discord oAuth secret
 
 
-### `pages`
+## Acknowledgements
 
-This directory contains your application views and routes. Nuxt will read all the `*.vue` files inside this directory and setup Vue Router automatically.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/get-started/routing).
-
-### `plugins`
-
-The plugins directory contains JavaScript plugins that you want to run before instantiating the root Vue.js Application. This is the place to add Vue plugins and to inject functions or constants. Every time you need to use `Vue.use()`, you should create a file in `plugins/` and add its path to plugins in `nuxt.config.js`.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/plugins).
-
-### `static`
-
-This directory contains your static files. Each file inside this directory is mapped to `/`.
-
-Example: `/static/robots.txt` is mapped as `/robots.txt`.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/static).
-
-### `store`
-
-This directory contains your Vuex store files. Creating a file in this directory automatically activates Vuex.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/store).
+ - [@jonathanlurie](https://github.com/jonathanlurie)/[pointCloud](https://github.com/jonathanlurie/pointCloud)

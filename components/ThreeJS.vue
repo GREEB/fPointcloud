@@ -191,8 +191,6 @@ export default {
       cameraFolder.add(this.cube.position, 'x', 0, 1000).listen()
       cameraFolder.add(this.cube.position, 'y', 0, 1000).listen()
     },
-    // TODO: update client data only every x seconds or something else completely
-    // category=Three
     parseChordPack (val) {
       console.log(val)
       const now = new Date()
@@ -265,8 +263,9 @@ export default {
         // }
         // this.camera.position.z = this.car.position.z
 
-        this.car.position.lerpVectors(this.fromPostion, this.toPosition, 0.02)
+        this.car.position.lerpVectors(this.fromPostion, this.toPosition, 0.1)
         this.car.quaternion.slerpQuaternions(this.fromRotation, this.toRotation, 0.1)
+
         this.car.needsUpdate = true
         // this.camera.position.z = 5
         this.aCamera.lerp(this.car.position, 0.4)
@@ -274,7 +273,7 @@ export default {
 
         this.directionCamera.copy(this.aCamera).sub(this.bCamera).normalize()
 
-        const dis = this.aCamera.distanceTo(this.bCamera) - 5
+        const dis = this.aCamera.distanceTo(this.bCamera) - 2.5
 
         this.goalCamera.position.addScaledVector(this.directionCamera, dis)
 
@@ -284,6 +283,7 @@ export default {
         this.camera.lookAt(this.car.position)
         // this.controls.target.copy(this.car.position)
 
+        this.camera.position.lerp(new THREE.Vector3(this.camera.position.x, this.camera.position.y, this.car.position.z - 5.5), 0.01)
         this.camera.needsUpdate = true
       }
       this.lastPos = this.fromPostion

@@ -326,8 +326,6 @@ export default {
       cameraFolder.add(this.cube.position, 'x', 0, 1000).listen()
       cameraFolder.add(this.cube.position, 'y', 0, 1000).listen()
     },
-    // TODO: update client data only every x seconds or something else completely
-    // category=Three
     createCar () {
       const bg = new BoxGeometry(1, 1, 1)
       const bm = new MeshBasicMaterial({ color: 0xFF0000 })

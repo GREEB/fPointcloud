@@ -25,8 +25,8 @@
     <div>
       <v-btn
         v-if="!$auth.loggedIn"
-          color="blue darken-1"
-          text
+        color="blue darken-1"
+        text
         class="ma-2 white--text"
         :href="oauth"
       >
@@ -51,17 +51,13 @@
             icon
             v-on="on"
           >
-            <!-- TODO: ADD color if no image or fix bg and image offset -->
-            <!-- category=frontend -->
             <v-avatar
               size="30"
             >
               <img
                 :src="avatar"
-                alt="John"
+                alt=""
               >
-              <!-- TODO: If user has no image create something with text -->
-              <!-- category=frontend -->
 
               <!-- <span class="white--text text-h5">dfgdg</span> -->
             </v-avatar>

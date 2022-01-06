@@ -43,48 +43,4 @@ models.user.hasOne(models.refreshToken, {
   tragetKey: 'id'
 })
 
-// OLD
-// const games = [
-//   {
-//     id: 1,
-//     name: 'Forza Horizon 5'
-//   },
-//   {
-//     id: 2,
-//     name: 'Forza Horizon 4'
-//   },
-//   {
-//     id: 3,
-//     name: 'Forza Motorsport 7'
-//   }
-
-// ]
-// console.log(games)
-// // for each game in list do logic
-// games.forEach(async (a) => {
-//   const findGame = await Game.findOne({ where: { name: a.name } })
-//   if (findGame === null) {
-//     console.log('Not found!')
-//     const newGame = await Game.create({ name: a.name })
-//     console.log(newGame)
-//   } else {
-//     console.log(findGame) // true
-//   }
-//   // const findGame = await Game.findOne({
-//   //   where: {
-//   //     name: a.name
-//   //   }
-//   // })
-//   // if (findGame) {
-//   //   console.log(findGame)
-//   // } else {
-//   //   not found create
-//   //   // TODO: Get min max xyz and add to map
-//   //   const newGame = await Game.create({
-//   //     name: a.name
-//   //   })
-//   //   console.log(newGame)
-//   // }
-// })
-
 export default models

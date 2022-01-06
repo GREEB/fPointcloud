@@ -3,39 +3,11 @@ import { makeUDPuser } from '../controllers/userController'
 import { throttledWrite } from '../controllers/dataController'
 const udpServer = dgram.createSocket('udp4')
 
-// const addK2R = async (ip) =>{
-
-//     await redisClient.set(ip.toString(), Date.now().toString(), {
-//         EX: 10,
-//         NX: true
-//       });
-
-//     await publisher.publish('', 'message');
-
-// }
-
-// write some data with a base64 encoding
-
-// the finish event is emitted when all data has been flushed from the stream
-
 udpServer.on('message', (msg, rinfo) => {
   if (rinfo !== undefined) {
     makeUDPuser(rinfo.address)
   }
-  // write some data with a base64 encoding
-  // fs.appendFile('./stream.txt', msg.toString('hex') + '\n', (err) => {
-  //   if (err) { throw err }
-  // })
 
-  // the finish event is emitted when all data has been flushed from the stream
-
-  // close the stream
-  // important to tag data by user so if we have a bad actor its ez to remove
-  // addK2R(rinfo.address)
-  // console.log(udpclients);
-  // Build list of clients to watch for changes
-  // watchedudp[rinfo.address] = true;
-  // await client.HGETALL('key');
   let flying = 1
   let surface = 0
   // Road edgde detection build in?
@@ -84,8 +56,6 @@ udpServer.on('message', (msg, rinfo) => {
   }
 
   if ((parseInt(x) + parseInt(y) + parseInt(z)) === 0.0) { return }
-  // TODO: Throttle write for each client
-  // category=Server
   throttledWrite(x, y, z, speed, surface, flying, yaw, pitch, roll, rinfo.address, rinfo.size)
 })
 
