@@ -23,6 +23,7 @@ export const io = new Server(httpServer, {
 })
 io.use(function (socket, next) {
   // TODO: No idea if this is right way to do things or if we need to recheck this everytime with middleware
+  // category=Auth
   const authtoken = socket.handshake.headers.cookie.split(' ')[1]
   const token = authtoken.split('=')[1].slice(0, -1)
   if (token === 'false') {
