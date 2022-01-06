@@ -30,9 +30,6 @@ export const mutations = {
   SET_GAME (state, sel) {
     state.game = sel
   },
-  SET_CHORD (state, msg) {
-    state.chord = msg
-  },
   SET_CHORDPACK (state, msg) {
     state.chordPack = msg
   }
@@ -40,10 +37,8 @@ export const mutations = {
 
 export const actions = {
   FORMAT_CHORDPACK ({ commit }, msg) {
-    commit('SET_CHORDPACK', unpack(toBuffer(msg)))
-  },
-  FORMAT_CHORD ({ commit }, msg) {
-    commit('SET_CHORD', msg)
+    const buffer = unpack(toBuffer(msg))
+    commit('SET_CHORDPACK', buffer)
   },
   CONNECT ({ commit }) {
     commit('SET_CONNECT')

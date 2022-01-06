@@ -16,6 +16,7 @@
     "@nuxtjs/axios": "^5.13.6",
     "@nuxtjs/pwa": "^3.3.5",
     "@nuxtjs/toast": "^3.3.1",
+    "@seregpie/three.text-sprite": "^3.2.0",
     "@tweenjs/tween.js": "^18.6.4",
     "core-js": "^3.19.3",
     "express": "^4.17.2",

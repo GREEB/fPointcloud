@@ -1475,6 +1475,18 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.21.tgz#5de5a2385a35309427f6011992b544514d559aa1"
   integrity sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==
 
+"@seregpie/three.text-sprite@^3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@seregpie/three.text-sprite/-/three.text-sprite-3.2.0.tgz#a1826392bfd5afb54d66392a3c33527f65d33628"
+  integrity sha512-ozQq7JFKGCltCvT3DG5SC77WnSJfZhYpSabhp+I1iZ9tTMxiPJqyEscmcMC+Rdxy1eYCBmZKGKBBcMLLrd5GuA==
+  dependencies:
+    "@seregpie/three.text-texture" "^3.2.0"
+
+"@seregpie/three.text-texture@^3.2.0":
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/@seregpie/three.text-texture/-/three.text-texture-3.2.1.tgz#aedb9b26ec8f16c158ca59721b506d2d40f76f0d"
+  integrity sha512-+rBfu63PolUyg6WB56SxYIIGGw7BMiFMeoj6AcxGooGs1apnudu024EMY/6dr1KnpIa9lNIwSgJETeaclgT/BQ==
+
 "@socket.io/component-emitter@~3.0.0":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@socket.io/component-emitter/-/component-emitter-3.0.0.tgz#8863915676f837d9dad7b76f50cb500c1e9422e9"

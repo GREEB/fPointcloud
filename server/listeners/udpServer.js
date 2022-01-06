@@ -40,7 +40,9 @@ udpServer.on('message', (msg, rinfo) => {
   let surface = 0
   // Road edgde detection build in?
   // WheelOnRumbleStripFl(this byte[] bytes) { return GetSingle(bytes, 116)
-
+  const yaw = parseFloat(msg.readFloatLE(56))
+  const pitch = parseFloat(msg.readFloatLE(60))
+  const roll = parseFloat(msg.readFloatLE(64))
   // public static float Speed(this byte[] bytes) { return GetSingle(bytes, 244 + BufferOffset); }
   // Get Dirt tele to see if not on real road
   // SurfaceRumbleRr(this byte[] bytes) { return GetSingle(bytes, 160)
@@ -84,7 +86,7 @@ udpServer.on('message', (msg, rinfo) => {
   if ((parseInt(x) + parseInt(y) + parseInt(z)) === 0.0) { return }
   // TODO: Throttle write for each client
   // category=Server
-  throttledWrite(x, y, z, speed, surface, flying, rinfo.address, rinfo.size)
+  throttledWrite(x, y, z, speed, surface, flying, yaw, pitch, roll, rinfo.address, rinfo.size)
 })
 
 udpServer.on('error', (err) => {

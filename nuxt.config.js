@@ -123,7 +123,6 @@ export default {
             'connect --> CONNECT',
             'disconnect --> DISCONNECT',
             'registerUdp --> UDPREGISTER',
-            'chord --> FORMAT_CHORD',
             'chordPack --> FORMAT_CHORDPACK'
 
           ],

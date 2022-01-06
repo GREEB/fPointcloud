@@ -16,7 +16,7 @@ import { users, idFromIp } from './userController.js' // Mongo Model
  * @param  {Integer} size
  * @param  {Integer} userID
  */
-export const throttledWrite = async (x, y, z, s, r, flying, ip, size, userID) => {
+export const throttledWrite = async (x, y, z, s, r, flying, yaw, pitch, roll, ip, size, userID) => {
   const userId = idFromIp(ip)
 
   /**
@@ -30,16 +30,11 @@ export const throttledWrite = async (x, y, z, s, r, flying, ip, size, userID) =>
 
   const now = new Date()
   const speed2kmh = Math.abs(Math.round(s * 2.237)) * 1.60934
-  const twenymil = 2 * Math.pow(10, 7)
+  // const twenymil = 2 * Math.pow(10, 7)
 
-  let speedo = Math.pow(speed2kmh, -2) * twenymil
-  if (speedo > 250) {
-    speedo = 250
-  }
-  if (speed2kmh < 25) {
-    speedo = 1000
-  }
-  if (now - users[userId].udp.lastSeen >= speedo) {
+  // const speedo = Math.pow(speed2kmh, -2) * 100000
+
+  if (now - users[userId].udp.lastSeen >= 50) {
     users[userId].udp.lastSeen = now
   } else {
     return
@@ -54,11 +49,12 @@ export const throttledWrite = async (x, y, z, s, r, flying, ip, size, userID) =>
     r,
     userId: users[userId].udp.known.id
   })
-
+  const obj2Send = { x, y, z, s: r, yaw, pitch, roll, speed2kmh }
+  const serializedAsBuffer = pack({ obj2Send })
   if ('socket' in users[userId]) {
-    io.to(users[userId].socket.id).emit('chord', { x, y, z, s: r })
+    io.to(users[userId].socket.id).emit('chord', serializedAsBuffer)
   }
-  io.to('home').emit('chord', { x, y, z, s: r })
+  io.to('home').emit('chord', serializedAsBuffer)
 }
 /**
  * @param  {Object} socket
@@ -73,6 +69,7 @@ export const sendInitData = async (socket) => {
     })
     const serializedAsBuffer = pack({ alluserPos })
     io.to(socket.id).emit('chordPack', serializedAsBuffer)
+    console.log(niceBytes(serializedAsBuffer.length))
   } else {
     console.log(socket.rooms.has('home'))
     // console.log(socket)
@@ -85,8 +82,21 @@ export const sendInitData = async (socket) => {
     })
     const serializedAsBuffer = pack({ alluserPos })
     io.to(socket.id).emit('chordPack', serializedAsBuffer)
+    console.log(niceBytes(serializedAsBuffer.length))
   }
 
 // let data = unpack(serializedAsBuffer);
   // console.log(alluserPos)
+}
+
+const units = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+
+function niceBytes (x) {
+  let l = 0; let n = parseInt(x, 10) || 0
+
+  while (n >= 1024 && ++l) {
+    n = n / 1024
+  }
+
+  return (n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l])
 }
