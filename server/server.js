@@ -3,7 +3,7 @@ import express from 'express'
 import authRouter from './routers/authRouter'
 import { db } from './config/db.config'
 import udpServer from './listeners/udpServer'
-import { sendUDP } from './listeners/udpSender'
+
 const wait4sync = async () => {
   await db.sync()
 }
@@ -37,9 +37,5 @@ setTimeout(() => {
 app.listen(3002, () => {
   console.log('Api listening on 3002')
 })
-
-// setTimeout(() => {
-//   sendUDP()
-// }, 10000)
 
 export default app

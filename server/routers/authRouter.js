@@ -1,6 +1,5 @@
 import { Router } from 'express'
-import isAuth from '../middleware/isAuth'
-import { postLogin, postRefreshToken, getAllUsers, getUser } from '../controllers/authController.js'
+import { postLogin, postRefreshToken, getUser } from '../controllers/authController.js'
 
 export default function (app) {
   const authRouter = Router()

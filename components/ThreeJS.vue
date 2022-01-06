@@ -92,7 +92,6 @@ export default {
   watch: {
     chordPack (val) {
       if (val.length === 0) { return }
-      console.log(val)
       this.parseChordPack(val)
     },
     connected (state) {
@@ -192,7 +191,6 @@ export default {
       cameraFolder.add(this.cube.position, 'y', 0, 1000).listen()
     },
     parseChordPack (val) {
-      console.log(val)
       const now = new Date()
       for (let i = 0; i < val.alluserPos.length; i++) {
         this.parsePoint(val.alluserPos[i], 'pack')
@@ -252,17 +250,6 @@ export default {
     animate () {
       requestAnimationFrame(this.animate)
       if (this.fromPostion && this.fromRotation && this.toPosition && this.toRotation && this.lastPos) {
-        console.log(this.lastPos.equals(this.toPosition))
-        // if (this.lastPos === this.fromPostion) {
-        //   // count how many times we get it
-        //   this.animecount += 1
-        //   console.log(this.animecount)
-        //   this.car.quaternion.slerpQuaternions(this.fromRotation, this.toRotation, this.animecount / 10)
-        // } else {
-        //   this.animecount = 0
-        // }
-        // this.camera.position.z = this.car.position.z
-
         this.car.position.lerpVectors(this.fromPostion, this.toPosition, 0.1)
         this.car.quaternion.slerpQuaternions(this.fromRotation, this.toRotation, 0.1)
 
